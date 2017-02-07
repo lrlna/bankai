@@ -17,7 +17,7 @@ var bankai = require('./')
 
 var argv = subarg(process.argv.slice(2), {
   string: [ 'open', 'port' ],
-  boolean: [ 'optimize', 'verbose', 'help', 'version', 'debug' ],
+  boolean: [ 'optimize', 'verbose', 'help', 'version', 'debug', 'electron' ],
   default: {
     optimize: false,
     open: false,
@@ -27,6 +27,7 @@ var argv = subarg(process.argv.slice(2), {
   alias: {
     css: 'c',
     debug: 'd',
+    electron: 'e',
     help: 'h',
     html: 'H',
     js: 'j',
@@ -50,6 +51,7 @@ var usage = `
     Options:
       -c, --css=<subargs>     Pass subarguments to sheetify
       -d, --debug             Include sourcemaps [default: false]
+      -e, --electron          Enable electron mode for the bundler
       -h, --help              Print usage
       -H, --html=<subargs>    Pass subarguments to create-html
       -j, --js=<subargs>      Pass subarguments to browserify
@@ -111,7 +113,7 @@ function start (entry, argv, done) {
   var assets = bankai(entry, argv)
   var port = argv.port
 
-  http.createServer((req, res) => {
+  http.createServer(function (req, res) {
     switch (req.url) {
       case '/': return assets.html(req, res).pipe(res)
       case '/bundle.js': return assets.js(req, res).pipe(res)
