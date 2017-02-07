@@ -8,9 +8,9 @@ var mkdirp = require('mkdirp')
 var subarg = require('subarg')
 var bole = require('bole')
 var http = require('http')
+var open = require('open')
 var path = require('path')
 var pump = require('pump')
-var opn = require('opn')
 var fs = require('fs')
 
 var bankai = require('./')
@@ -19,10 +19,10 @@ var argv = subarg(process.argv.slice(2), {
   string: [ 'open', 'port' ],
   boolean: [ 'optimize', 'verbose', 'help', 'version', 'debug' ],
   default: {
+    debug: false,
+    open: '',
     optimize: false,
-    open: false,
-    port: 8080,
-    debug: false
+    port: 8080
   },
   alias: {
     css: 'c',
@@ -128,12 +128,11 @@ function start (entry, argv, done) {
     var addr = 'http://localhost:' + port
     console.info('Started bankai for', relative, 'on', addr)
     if (argv.open !== false) {
-      var app = (argv.open.length) ? argv.open : 'system browser'
-      opn(addr, { app: argv.open || null })
-        .catch(function (err) {
-          done(explain(err, `err running ${app}`))
-        })
-        .then(done)
+      var app = (argv.open.length) ? argv.open : ''
+      open(addr, app, function (err) {
+        if (err) return done(explain(err, `err running ${app}`))
+        done()
+      })
     }
   })
 }
